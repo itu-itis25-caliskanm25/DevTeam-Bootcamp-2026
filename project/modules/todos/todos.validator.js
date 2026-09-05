@@ -1,3 +1,5 @@
+import { getUserById } from "../users/users.service.js";
+
 export const validateAddTodo = (req, res, next) => {
   const { title, description } = req.body;
   if (
@@ -10,16 +12,65 @@ export const validateAddTodo = (req, res, next) => {
       error: "Title and description are required and must be strings",
     });
   }
+
+  if(userId !== undefined && userId !== null){
+    if(!getUserById(userId)){
+      return res.status(400).json({
+        error: "User not found",
+      });
+    }
+  }
+  
   next();
 };
 
-// TODO (Aşama 1): validateReplaceTodo ve validateUpdateTodo middleware'lerini
-// ekleyin.
-//
-//   validateReplaceTodo (PUT)  → title, description ve completed'ın üçü de
-//                                zorunlu ve doğru tipte olmalı.
-//   validateUpdateTodo (PATCH) → en az bir geçerli alan gönderilmiş olmalı;
-//                                gönderilen alanların tipi doğru olmalı.
-//
-// Hatırlatma: hata durumunda next() ÇAĞIRMAYIN — zinciri 400 ile kesin.
-// Ve res.status(400).json(...) satırının başına return koymayı unutmayın.
+export const validateReplaceTodo = (req, res, next) => {
+  const {title, description, completed} = req.body;
+
+  if (
+    typeof title !== "string" || 
+    typeof description !== "string" || 
+    typeof completed !== "boolean"
+  ){
+    return res.status(400).json({
+      error:
+      "Title, description and completed are required and must have valid types",
+    });
+  }
+
+  next();
+};
+
+export const validateUpdateTodo = (req, res, next) => {
+  const {title, description, completed} = req.body;
+
+  const hasTitle = title !== undefined;
+  const hasDescription = description !== undefined;
+  const hasCompleted = completed !== undefined;
+
+  if(!hasTitle && !hasDescription && !hasCompleted){
+    return res.status(400).json({
+      error: "At least one field is required",
+    });
+  }
+
+  if(hasTitle && typeof title !== "string"){
+    return res.status(400).json({
+      error: "Title must be string",
+    });
+  }
+
+  if (hasDescription && typeof description !== "string") {
+    return res.status(400).json({
+      error: "Description must be a string",
+    });
+  }
+  
+  if (hasCompleted && typeof completed !== "boolean") {
+    return res.status(400).json({
+      error: "Completed must be a boolean",
+    });
+  }
+
+  next();
+};
