@@ -1,26 +1,33 @@
 import { getUserById } from "../users/users.service.js";
 
 export const validateAddTodo = (req, res, next) => {
-  const { title, description } = req.body;
+  const { title, description, completed, userId } = req.body;
+
   if (
-    !title ||
-    !description ||
     typeof title !== "string" ||
-    typeof description !== "string"
+    title.trim() === "" ||
+    typeof description !== "string" ||
+    description.trim() === ""
   ) {
     return res.status(400).json({
       error: "Title and description are required and must be strings",
     });
   }
 
-  if(userId !== undefined && userId !== null){
-    if(!getUserById(userId)){
+  if (completed !== undefined && typeof completed !== "boolean") {
+    return res.status(400).json({
+      error: "Completed must be a boolean",
+    });
+  }
+
+  if (userId !== undefined && userId !== null) {
+    if (!getUserById(userId)) {
       return res.status(400).json({
         error: "User not found",
       });
     }
   }
-  
+
   next();
 };
 

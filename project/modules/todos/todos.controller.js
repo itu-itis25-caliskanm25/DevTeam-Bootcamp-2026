@@ -1,23 +1,39 @@
-import { getTodos, addTodo, getTodoById, replaceTodo, updateTodo, deleteTodo } from "./todos.service.js";
+import {
+  getTodos,
+  addTodo,
+  getTodoById,
+  replaceTodo,
+  updateTodo,
+  deleteTodo,
+} from "./todos.service.js";
 
 export const getTodosController = (req, res) => {
-  const todos = getTodos();
-  res.json(todos);
+  const { completed, q } = req.query;
+  const todos = getTodos({ completed, q });
+
+  res.status(200).json(todos);
 };
 
 export const addTodoController = (req, res) => {
-  const { title, description } = req.body;
-  const todo = addTodo(title, description, userId ?? null);
+  const { title, description, completed, userId } = req.body;
+
+  const todo = addTodo(title, description, completed, userId);
+
   res.status(201).json(todo);
 };
 
 export const getTodoByIdController = (req, res) => {
   const { id } = req.params;
+
   const todo = getTodoById(id);
+
   if (!todo) {
-    return res.status(404).json({ error: "Todo not found" });
+    return res.status(404).json({
+      error: "Todo not found",
+    });
   }
-  res.json(todo);
+
+  res.status(200).json(todo);
 };
 
 export const replaceTodoController = (req, res) => {
@@ -26,13 +42,13 @@ export const replaceTodoController = (req, res) => {
 
   const todo = replaceTodo(id, title, description, completed);
 
-  if(!todo){
-    return res.status(400).json({
-      error: "Todo not found"
+  if (!todo) {
+    return res.status(404).json({
+      error: "Todo not found",
     });
   }
 
-  res.json(todo);
+  res.status(200).json(todo);
 };
 
 export const updateTodoController = (req, res) => {
@@ -40,13 +56,13 @@ export const updateTodoController = (req, res) => {
 
   const todo = updateTodo(id, req.body);
 
-  if(!todo){
-    return res.status(400).json({
-      error: "Todo not found"
+  if (!todo) {
+    return res.status(404).json({
+      error: "Todo not found",
     });
   }
 
-  res.json(todo);
+  res.status(200).json(todo);
 };
 
 export const deleteTodoController = (req, res) => {
@@ -54,9 +70,9 @@ export const deleteTodoController = (req, res) => {
 
   const deleted = deleteTodo(id);
 
-  if(!deleted){
-    return res.status(400).json({
-      error: "Todo not found"
+  if (!deleted) {
+    return res.status(404).json({
+      error: "Todo not found",
     });
   }
 

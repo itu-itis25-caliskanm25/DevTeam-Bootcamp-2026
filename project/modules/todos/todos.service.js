@@ -1,14 +1,25 @@
 export const todos = [];
 
-export const addTodo = (title, description) => {
+export const addTodo = (
+  title,
+  description,
+  completed = false,
+  userId = undefined,
+) => {
   const todo = {
     id: crypto.randomUUID(),
     title,
     description,
-    completed: false,
+    completed,
     createdAt: new Date(),
   };
+
+  if (userId !== undefined && userId !== null) {
+    todo.userId = userId;
+  }
+
   todos.push(todo);
+
   return todo;
 };
 
@@ -47,11 +58,6 @@ export const getTodoById = (id) => {
 
 export const getTodosByUserId = (userId) => {
   return todos.filter((todo) => todo.userId === userId);
-};
-
-export const getTodosController = (req, res) => {
-  const { completed, q } = req.query;
-  res.json(getTodos({ completed, q }));
 };
 
 export const replaceTodo = (id,title,description,completed) => {
