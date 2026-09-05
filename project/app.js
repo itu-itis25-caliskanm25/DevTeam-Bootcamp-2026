@@ -2,7 +2,7 @@ import express from "express";
 import todosRouter from "./modules/todos/todos.router.js";
 import notFoundHandler from "./utils/notFoundHandler.js";
 import globalErrorHandler from "./utils/globalErrorHandler.js";
-import usersRouter from "./users/user.router.js";
+import usersRouter from "./users/users.router.js";
 
 const server = express();
 
