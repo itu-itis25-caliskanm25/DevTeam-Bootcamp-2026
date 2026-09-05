@@ -1,7 +1,7 @@
 export const users = [];
 
 export const addUser = (username, email, password) => {
-    const users = {
+    const user = {
         id: crypto.randomUUID(),
         username,
         email,
@@ -10,6 +10,7 @@ export const addUser = (username, email, password) => {
     };
 
     users.push(user);
+
     return user;
 };
 
@@ -18,23 +19,11 @@ export const getUsers = () => {
 };
 
 export const getUserById = (id) => {
-    const user = users.find((user) => user.id === id);
-
-    if(!user){
-        return;
-    }
-
-    return user;
+    return users.find((user) => user.id === id);
 };
 
 export const getUserByEmail = (email) => {
-    const user = users.find((user) => user.email === email);
-
-    if(!user){
-        return;
-    }
-
-    return user;
+    return users.find((user) => user.email === email);
 };
 
 export const publicUser = ({ id, username, email, createdAt }) => ({
