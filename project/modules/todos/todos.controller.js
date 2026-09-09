@@ -68,7 +68,6 @@ export const replaceTodoController = async (req, res) => {
 
 export const updateTodoController = async (req, res) => {
   const { id } = req.params;
-
   const { title, description, completed, priority } = req.body;
 
   const alanlar = {
@@ -109,15 +108,19 @@ export const deleteTodoController = async (req, res) => {
 
 export const addTagToTodoController = async (req, res) => {
   const { id } = req.params;
-  const tagId = Number(req.body.tagId);
+  const { tagId } = req.body;
 
-  if (tagId === undefined) {
+  if (
+    tagId === undefined ||
+    tagId === null ||
+    !Number.isInteger(Number(tagId))
+  ) {
     return res.status(400).json({
-      error: "tagId is required",
+      error: "tagId is required and must be an integer",
     });
   }
 
-  const result = await addTagToTodo(id, tagId);
+  const result = await addTagToTodo(id, Number(tagId));
 
   if (result.error === "todo_not_found") {
     return res.status(404).json({
@@ -137,7 +140,10 @@ export const addTagToTodoController = async (req, res) => {
     });
   }
 
-  res.status(201).json(result);
+  res.status(201).json({
+    ...result,
+    tagId: String(result.tagId),
+  });
 };
 
 export const getTodoTagsController = async (req, res) => {
@@ -151,13 +157,24 @@ export const getTodoTagsController = async (req, res) => {
     });
   }
 
-  res.status(200).json(tags);
+  res.status(200).json(
+    tags.map((tag) => ({
+      ...tag,
+      id: String(tag.id),
+    })),
+  );
 };
 
 export const removeTagFromTodoController = async (req, res) => {
   const { id, tagId } = req.params;
 
-  const deleted = await removeTagFromTodo(id, tagId);
+  if (!Number.isInteger(Number(tagId))) {
+    return res.status(404).json({
+      error: "Tag not found",
+    });
+  }
+
+  const deleted = await removeTagFromTodo(id, Number(tagId));
 
   if (!deleted) {
     return res.status(404).json({

@@ -155,7 +155,7 @@ export const deleteTodoById = async (id) => {
 // -------------------------
 
 export const insertTodoTag = async (todoId, tagId) => {
-  return await prisma.todoTag.create({
+  const result = await prisma.todoTag.create({
     data: {
       todoId,
       tagId,
@@ -165,6 +165,11 @@ export const insertTodoTag = async (todoId, tagId) => {
       tagId: true,
     },
   });
+
+  return {
+    todoId: result.todoId,
+    tagId: String(result.tagId),
+  }
 };
 
 export const selectTodoTags = async (todoId) => {

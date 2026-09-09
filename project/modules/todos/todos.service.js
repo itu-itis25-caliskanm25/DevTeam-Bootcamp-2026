@@ -74,14 +74,20 @@ export const addTagToTodo = async (todoId, tagId) => {
     return { error: "todo_not_found" };
   }
 
-  const tag = await getTagById(tagId);
+  const numericTagId = Number(tagId);
+
+  if (!Number.isInteger(numericTagId)) {
+    return { error: "tag_not_found" };
+  }
+
+  const tag = await getTagById(numericTagId);
 
   if (!tag) {
     return { error: "tag_not_found" };
   }
 
   try {
-    return await insertTodoTag(todoId, tagId);
+    return await insertTodoTag(todoId, numericTagId);
   } catch (error) {
     if (error.code === "P2002") {
       return { error: "already_exists" };
@@ -105,8 +111,26 @@ export const removeTagFromTodo = async (todoId, tagId) => {
   const todo = await selectTodoById(todoId);
 
   if (!todo) {
-    return false;
+    return { error: "todo_not_found" };
   }
 
-  return await deleteTodoTag(todoId, Number(tagId));
+  const numericTagId = Number(tagId);
+
+  if (!Number.isInteger(numericTagId)) {
+    return { error: "tag_not_found" };
+  }
+
+  const tag = await getTagById(numericTagId);
+
+  if (!tag) {
+    return { error: "tag_not_found" };
+  }
+
+  const deleted = await deleteTodoTag(todoId, numericTagId);
+
+  if (!deleted) {
+    return { error: "relation_not_found" };
+  }
+
+  return { success: true };
 };
