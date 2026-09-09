@@ -16,13 +16,14 @@ export const getTodosController = async (req, res) => {
 };
 
 export const addTodoController = async (req, res) => {
-  const { title, description, completed, userId } = req.body;
+  const { title, description, completed, userId, priority } = req.body;
 
   const todo = await addTodo(
     title,
     description,
     completed,
     userId,
+    priority,
   );
 
   res.status(201).json(todo);
@@ -65,12 +66,13 @@ export const replaceTodoController = async (req, res) => {
 export const updateTodoController = async (req, res) => {
   const { id } = req.params;
 
-  const { title, description, completed } = req.body;
+  const { title, description, completed, priority } = req.body;
 
   const alanlar = {
     ...(title !== undefined && { title }),
     ...(description !== undefined && { description }),
     ...(completed !== undefined && { completed }),
+    ...(priority !== undefined && { priority }),
   };
 
   const todo = await updateTodo(id, alanlar);

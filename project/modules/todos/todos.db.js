@@ -5,6 +5,7 @@ const todoSelect = {
     title: true,
     description: true,
     completed: true,
+    priority: true,
     userId: true,
     createdAt: true,
 };
@@ -64,6 +65,7 @@ export const createTodo = async (
     description,
     completed = false,
     userId = undefined,
+    priority,
 ) => {
     return await prisma.todo.create({
         data: {
@@ -71,6 +73,7 @@ export const createTodo = async (
             description,
             completed,
             ...(userId !== undefined && userId !== null ? { userId } : {}),
+            ...(priority !== undefined && { priority }),
         },
         select: todoSelect,
     });
@@ -82,12 +85,21 @@ export const replaceTodoById = async (
     description,
     completed,
 ) => {
+    const existing = await prisma.todo.findUnique({
+        where: { id },
+        select: { priority: true },
+    });
+
+    if (!existing){
+        return undefined;
+    }
     const { count } = await prisma.todo.updateMany({
         where: { id },
         data: {
             title,
             description,
             completed,
+            priority: existing.priority,
         },
     });
 
@@ -111,6 +123,10 @@ export const updateTodoById = async (id, alanlar) => {
 
     if (alanlar.completed !== undefined) {
         data.completed = alanlar.completed;
+    }
+
+    if (alanlar.priority !== undefined) {
+        data.priority = alanlar.priority;
     }
 
     const { count } = await prisma.todo.updateMany({

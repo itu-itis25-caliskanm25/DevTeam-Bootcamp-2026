@@ -13,12 +13,14 @@ export const addTodo = async (
   description,
   completed = false,
   userId = undefined,
+  priority,
 ) => {
   return await createTodo(
     title,
     description,
     completed,
     userId,
+    priority,
   );
 };
 

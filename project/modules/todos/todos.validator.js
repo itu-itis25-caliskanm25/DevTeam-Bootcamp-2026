@@ -49,13 +49,14 @@ export const validateReplaceTodo = (req, res, next) => {
 };
 
 export const validateUpdateTodo = (req, res, next) => {
-  const { title, description, completed } = req.body;
+  const { title, description, completed, priority } = req.body;
 
   const hasTitle = title !== undefined;
   const hasDescription = description !== undefined;
   const hasCompleted = completed !== undefined;
+  const hasPriority = priority !== undefined;
 
-  if (!hasTitle && !hasDescription && !hasCompleted) {
+  if (!hasTitle && !hasDescription && !hasCompleted && !hasPriority) {
     return res.status(400).json({
       error: "At least one field is required",
     });
@@ -77,6 +78,12 @@ export const validateUpdateTodo = (req, res, next) => {
     return res.status(400).json({
       error: "Completed must be a boolean",
     });
+  }
+
+  if (hasPriority && !Number.isInteger(priority)){
+    return res.status(400).json({
+      error: "Priority must be an integer",
+    })
   }
 
   next();
