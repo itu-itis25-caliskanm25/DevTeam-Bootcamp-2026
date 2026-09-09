@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   getTodosController,
   addTodoController,
@@ -6,21 +7,23 @@ import {
   replaceTodoController,
   updateTodoController,
   deleteTodoController,
+  addTagToTodoController,
+  getTodoTagsController,
+  removeTagFromTodoController,
 } from "./todos.controller.js";
-import { validateAddTodo, validateReplaceTodo, validateUpdateTodo } from "./todos.validator.js";
 
-const r = express.Router();
+const router = express.Router();
 
-r.get("/", getTodosController);
+router.post("/", addTodoController);
+router.get("/", getTodosController);
 
-r.post("/", validateAddTodo, addTodoController);
+router.get("/:id", getTodoByIdController);
+router.put("/:id", replaceTodoController);
+router.patch("/:id", updateTodoController);
+router.delete("/:id", deleteTodoController);
 
-r.get("/:id", getTodoByIdController);
+router.post("/:id/tags", addTagToTodoController);
+router.get("/:id/tags", getTodoTagsController);
+router.delete("/:id/tags/:tagId", removeTagFromTodoController);
 
-r.put("/:id", validateReplaceTodo, replaceTodoController);
-
-r.patch("/:id", validateUpdateTodo, updateTodoController);
-
-r.delete("/:id", deleteTodoController);
-
-export default r;
+export default router;

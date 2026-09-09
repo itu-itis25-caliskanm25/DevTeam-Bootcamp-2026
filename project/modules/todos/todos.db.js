@@ -1,150 +1,200 @@
 import prisma from "../../db/prisma.js";
 
 const todoSelect = {
-    id: true,
-    title: true,
-    description: true,
-    completed: true,
-    priority: true,
-    userId: true,
-    createdAt: true,
+  id: true,
+  title: true,
+  description: true,
+  completed: true,
+  priority: true,
+  userId: true,
+  createdAt: true,
 };
 
 export const selectTodos = async ({ completed, q } = {}) => {
-    const where = {};
+  const where = {};
 
-    if (completed === "true" || completed === "false") {
-        where.completed = completed === "true";
-    }
+  if (completed === "true" || completed === "false") {
+    where.completed = completed === "true";
+  }
 
-    if (typeof q === "string" && q.trim() !== "") {
-        where.OR = [
-            {
-                title: {
-                    contains: q,
-                    mode: "insensitive",
-                },
-            },
-            {
-                description: {
-                    contains: q,
-                    mode: "insensitive",
-                },
-            },
-        ];
-    }
-
-    return await prisma.todo.findMany({
-        where,
-        select: todoSelect,
-        orderBy: {
-            createdAt: "asc",
+  if (typeof q === "string" && q.trim() !== "") {
+    where.OR = [
+      {
+        title: {
+          contains: q,
+          mode: "insensitive",
         },
-    });
+      },
+      {
+        description: {
+          contains: q,
+          mode: "insensitive",
+        },
+      },
+    ];
+  }
+
+  return await prisma.todo.findMany({
+    where,
+    select: todoSelect,
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
 };
 
 export const selectTodoById = async (id) => {
-    return await prisma.todo.findUnique({
-        where: { id },
-        select: todoSelect,
-    });
+  return await prisma.todo.findUnique({
+    where: { id },
+    select: todoSelect,
+  });
 };
 
 export const selectTodosByUserId = async (userId) => {
-    return await prisma.todo.findMany({
-        where: { userId },
-        select: todoSelect,
-        orderBy: {
-            createdAt: "asc",
-        },
-    });
+  return await prisma.todo.findMany({
+    where: { userId },
+    select: todoSelect,
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
 };
 
 export const createTodo = async (
-    title,
-    description,
-    completed = false,
-    userId = undefined,
-    priority,
+  title,
+  description,
+  completed = false,
+  userId = undefined,
+  priority,
 ) => {
-    return await prisma.todo.create({
-        data: {
-            title,
-            description,
-            completed,
-            ...(userId !== undefined && userId !== null ? { userId } : {}),
-            ...(priority !== undefined && { priority }),
-        },
-        select: todoSelect,
-    });
+  return await prisma.todo.create({
+    data: {
+      title,
+      description,
+      completed,
+      ...(userId !== undefined && userId !== null ? { userId } : {}),
+      ...(priority !== undefined ? { priority } : {}),
+    },
+    select: todoSelect,
+  });
 };
 
 export const replaceTodoById = async (
-    id,
-    title,
-    description,
-    completed,
+  id,
+  title,
+  description,
+  completed,
 ) => {
-    const existing = await prisma.todo.findUnique({
-        where: { id },
-        select: { priority: true },
-    });
+  const existing = await prisma.todo.findUnique({
+    where: { id },
+    select: { priority: true },
+  });
 
-    if (!existing){
-        return undefined;
-    }
-    const { count } = await prisma.todo.updateMany({
-        where: { id },
-        data: {
-            title,
-            description,
-            completed,
-            priority: existing.priority,
-        },
-    });
+  if (!existing) {
+    return undefined;
+  }
 
-    if (count === 0) {
-        return undefined;
-    }
+  const { count } = await prisma.todo.updateMany({
+    where: { id },
+    data: {
+      title,
+      description,
+      completed,
+      priority: existing.priority,
+    },
+  });
 
-    return await selectTodoById(id);
+  if (count === 0) {
+    return undefined;
+  }
+
+  return await selectTodoById(id);
 };
 
 export const updateTodoById = async (id, alanlar) => {
-    const data = {};
+  const data = {};
 
-    if (alanlar.title !== undefined) {
-        data.title = alanlar.title;
-    }
+  if (alanlar.title !== undefined) {
+    data.title = alanlar.title;
+  }
 
-    if (alanlar.description !== undefined) {
-        data.description = alanlar.description;
-    }
+  if (alanlar.description !== undefined) {
+    data.description = alanlar.description;
+  }
 
-    if (alanlar.completed !== undefined) {
-        data.completed = alanlar.completed;
-    }
+  if (alanlar.completed !== undefined) {
+    data.completed = alanlar.completed;
+  }
 
-    if (alanlar.priority !== undefined) {
-        data.priority = alanlar.priority;
-    }
+  if (alanlar.priority !== undefined) {
+    data.priority = alanlar.priority;
+  }
 
-    const { count } = await prisma.todo.updateMany({
-        where: { id },
-        data,
-    });
+  const { count } = await prisma.todo.updateMany({
+    where: { id },
+    data,
+  });
 
-    if (count === 0) {
-        return undefined;
-    }
+  if (count === 0) {
+    return undefined;
+  }
 
-    return await selectTodoById(id);
+  return await selectTodoById(id);
 };
 
 export const deleteTodoById = async (id) => {
-    const { count } = await prisma.todo.deleteMany({
-        where: { id },
-    });
+  const { count } = await prisma.todo.deleteMany({
+    where: { id },
+  });
 
-    return count > 0;
+  return count > 0;
+};
+
+// -------------------------
+// Todo - Tag işlemleri
+// -------------------------
+
+export const insertTodoTag = async (todoId, tagId) => {
+  return await prisma.todoTag.create({
+    data: {
+      todoId,
+      tagId,
+    },
+    select: {
+      todoId: true,
+      tagId: true,
+    },
+  });
+};
+
+export const selectTodoTags = async (todoId) => {
+  const satirlar = await prisma.todoTag.findMany({
+    where: { todoId },
+    select: {
+      tag: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      tag: {
+        name: "asc",
+      },
+    },
+  });
+
+  return satirlar.map((satir) => satir.tag);
+};
+
+export const deleteTodoTag = async (todoId, tagId) => {
+  const { count } = await prisma.todoTag.deleteMany({
+    where: {
+      todoId,
+      tagId,
+    },
+  });
+
+  return count > 0;
 };

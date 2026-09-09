@@ -5,6 +5,9 @@ import {
   replaceTodo,
   updateTodo,
   deleteTodo,
+  addTagToTodo,
+  getTodoTags,
+  removeTagFromTodo,
 } from "./todos.service.js";
 
 export const getTodosController = async (req, res) => {
@@ -94,6 +97,71 @@ export const deleteTodoController = async (req, res) => {
   if (!deleted) {
     return res.status(404).json({
       error: "Todo not found",
+    });
+  }
+
+  res.status(204).send();
+};
+
+// -------------------------
+// Todo - Tag işlemleri
+// -------------------------
+
+export const addTagToTodoController = async (req, res) => {
+  const { id } = req.params;
+  const { tagId } = req.body;
+
+  if (tagId === undefined) {
+    return res.status(400).json({
+      error: "tagId is required",
+    });
+  }
+
+  const result = await addTagToTodo(id, tagId);
+
+  if (result.error === "todo_not_found") {
+    return res.status(404).json({
+      error: "Todo not found",
+    });
+  }
+
+  if (result.error === "tag_not_found") {
+    return res.status(404).json({
+      error: "Tag not found",
+    });
+  }
+
+  if (result.error === "already_exists") {
+    return res.status(409).json({
+      error: "Tag already attached to todo",
+    });
+  }
+
+  res.status(201).json(result);
+};
+
+export const getTodoTagsController = async (req, res) => {
+  const { id } = req.params;
+
+  const tags = await getTodoTags(id);
+
+  if (tags === undefined) {
+    return res.status(404).json({
+      error: "Todo not found",
+    });
+  }
+
+  res.status(200).json(tags);
+};
+
+export const removeTagFromTodoController = async (req, res) => {
+  const { id, tagId } = req.params;
+
+  const deleted = await removeTagFromTodo(id, tagId);
+
+  if (!deleted) {
+    return res.status(404).json({
+      error: "Todo or tag relation not found",
     });
   }
 
