@@ -12,18 +12,44 @@ import {
   removeTagFromTodoController,
 } from "./todos.controller.js";
 
+import {
+  validateAddTodo,
+  validateReplaceTodo,
+  validateUpdateTodo,
+} from "./todos.validator.js";
+
 const router = express.Router();
 
-router.post("/", addTodoController);
+router.post(
+  "/",
+  validateAddTodo,
+  addTodoController,
+);
+
 router.get("/", getTodosController);
 
 router.get("/:id", getTodoByIdController);
-router.put("/:id", replaceTodoController);
-router.patch("/:id", updateTodoController);
+
+router.put(
+  "/:id",
+  validateReplaceTodo,
+  replaceTodoController,
+);
+
+router.patch(
+  "/:id",
+  validateUpdateTodo,
+  updateTodoController,
+);
+
 router.delete("/:id", deleteTodoController);
 
+// Todo - Tag
 router.post("/:id/tags", addTagToTodoController);
 router.get("/:id/tags", getTodoTagsController);
-router.delete("/:id/tags/:tagId", removeTagFromTodoController);
+router.delete(
+  "/:id/tags/:tagId",
+  removeTagFromTodoController,
+);
 
 export default router;

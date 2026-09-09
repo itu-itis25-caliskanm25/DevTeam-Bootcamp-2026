@@ -1,7 +1,7 @@
 import { getUserById } from "../users/users.service.js";
 
 export const validateAddTodo = async (req, res, next) => {
-  const { title, description, completed, userId } = req.body;
+  const { title, description, completed, userId, priority } = req.body;
 
   if (
     typeof title !== "string" ||
@@ -20,8 +20,22 @@ export const validateAddTodo = async (req, res, next) => {
     });
   }
 
+  if (priority !== undefined && !Number.isInteger(priority)) {
+    return res.status(400).json({
+      error: "Priority must be an integer",
+    });
+  }
+
   if (userId !== undefined && userId !== null) {
-    if (!(await getUserById(userId))) {
+    try {
+      const user = await getUserById(userId);
+
+      if (!user) {
+        return res.status(400).json({
+          error: "User not found",
+        });
+      }
+    } catch (error) {
       return res.status(400).json({
         error: "User not found",
       });
@@ -36,7 +50,9 @@ export const validateReplaceTodo = (req, res, next) => {
 
   if (
     typeof title !== "string" ||
+    title.trim() === "" ||
     typeof description !== "string" ||
+    description.trim() === "" ||
     typeof completed !== "boolean"
   ) {
     return res.status(400).json({
@@ -62,15 +78,21 @@ export const validateUpdateTodo = (req, res, next) => {
     });
   }
 
-  if (hasTitle && typeof title !== "string") {
+  if (
+    hasTitle &&
+    (typeof title !== "string" || title.trim() === "")
+  ) {
     return res.status(400).json({
-      error: "Title must be string",
+      error: "Title must be a non-empty string",
     });
   }
 
-  if (hasDescription && typeof description !== "string") {
+  if (
+    hasDescription &&
+    (typeof description !== "string" || description.trim() === "")
+  ) {
     return res.status(400).json({
-      error: "Description must be a string",
+      error: "Description must be a non-empty string",
     });
   }
 
@@ -80,10 +102,10 @@ export const validateUpdateTodo = (req, res, next) => {
     });
   }
 
-  if (hasPriority && !Number.isInteger(priority)){
+  if (hasPriority && !Number.isInteger(priority)) {
     return res.status(400).json({
       error: "Priority must be an integer",
-    })
+    });
   }
 
   next();

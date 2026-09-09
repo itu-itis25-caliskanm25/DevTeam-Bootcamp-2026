@@ -109,7 +109,7 @@ export const deleteTodoController = async (req, res) => {
 
 export const addTagToTodoController = async (req, res) => {
   const { id } = req.params;
-  const { tagId } = req.body;
+  const tagId = Number(req.body.tagId);
 
   if (tagId === undefined) {
     return res.status(400).json({

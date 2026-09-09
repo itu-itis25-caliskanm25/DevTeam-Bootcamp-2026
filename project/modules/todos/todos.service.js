@@ -108,5 +108,5 @@ export const removeTagFromTodo = async (todoId, tagId) => {
     return false;
   }
 
-  return await deleteTodoTag(todoId, tagId);
+  return await deleteTodoTag(todoId, Number(tagId));
 };
