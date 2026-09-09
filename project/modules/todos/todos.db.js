@@ -1,11 +1,10 @@
-import { prisma } from "../../db/prisma.js";
+import prisma from "../../db/prisma.js";
 
 const todoSelect = {
     id: true,
     title: true,
     description: true,
     completed: true,
-    priority: true,
     userId: true,
     createdAt: true,
 };
