@@ -12,8 +12,60 @@ datasource db {
   // Bağlantı adresi burada değil, prisma.config.js dosyasında.
 }
 
-// TODO: model User   — hafta 2'deki alanlar + profile ilişkisi
-// TODO: model Profile — bire-bir (user_id UNIQUE)
-// TODO: model Todo   — hafta 2'deki alanlar + priority + tags ilişkisi
-// TODO: model Tag
-// TODO: model TodoTag — bağlantı tablosu, bileşik birincil anahtar
+model User {
+  id        String   @id @default(uuid())
+  username  String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  profile Profile?
+  todos   Todo[]
+
+  @@map("users")
+}
+
+model Profile {
+  id     Int     @id @default(autoincrement())
+  bio    String?
+  userId String  @unique @map("user_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Todo {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at")
+  userId      String?  @map("user_id")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  tags TodoTag[]
+
+  @@map("todos")
+}
+
+model Tag {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  todos TodoTag[]
+
+  @@map("tags")
+}
+
+model TodoTag {
+  todoId String @map("todo_id")
+  tagId  Int    @map("tag_id")
+
+  todo Todo @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([todoId, tagId])
+  @@map("todo_tags")
+}

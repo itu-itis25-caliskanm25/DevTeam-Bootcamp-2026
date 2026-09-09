@@ -7,25 +7,31 @@ import {
   deleteTodo,
 } from "./todos.service.js";
 
-export const getTodosController = (req, res) => {
+export const getTodosController = async (req, res) => {
   const { completed, q } = req.query;
-  const todos = getTodos({ completed, q });
+
+  const todos = await getTodos({ completed, q });
 
   res.status(200).json(todos);
 };
 
-export const addTodoController = (req, res) => {
+export const addTodoController = async (req, res) => {
   const { title, description, completed, userId } = req.body;
 
-  const todo = addTodo(title, description, completed, userId);
+  const todo = await addTodo(
+    title,
+    description,
+    completed,
+    userId,
+  );
 
   res.status(201).json(todo);
 };
 
-export const getTodoByIdController = (req, res) => {
+export const getTodoByIdController = async (req, res) => {
   const { id } = req.params;
 
-  const todo = getTodoById(id);
+  const todo = await getTodoById(id);
 
   if (!todo) {
     return res.status(404).json({
@@ -36,11 +42,16 @@ export const getTodoByIdController = (req, res) => {
   res.status(200).json(todo);
 };
 
-export const replaceTodoController = (req, res) => {
+export const replaceTodoController = async (req, res) => {
   const { id } = req.params;
   const { title, description, completed } = req.body;
 
-  const todo = replaceTodo(id, title, description, completed);
+  const todo = await replaceTodo(
+    id,
+    title,
+    description,
+    completed,
+  );
 
   if (!todo) {
     return res.status(404).json({
@@ -51,10 +62,18 @@ export const replaceTodoController = (req, res) => {
   res.status(200).json(todo);
 };
 
-export const updateTodoController = (req, res) => {
+export const updateTodoController = async (req, res) => {
   const { id } = req.params;
 
-  const todo = updateTodo(id, req.body);
+  const { title, description, completed } = req.body;
+
+  const alanlar = {
+    ...(title !== undefined && { title }),
+    ...(description !== undefined && { description }),
+    ...(completed !== undefined && { completed }),
+  };
+
+  const todo = await updateTodo(id, alanlar);
 
   if (!todo) {
     return res.status(404).json({
@@ -65,10 +84,10 @@ export const updateTodoController = (req, res) => {
   res.status(200).json(todo);
 };
 
-export const deleteTodoController = (req, res) => {
+export const deleteTodoController = async (req, res) => {
   const { id } = req.params;
 
-  const deleted = deleteTodo(id);
+  const deleted = await deleteTodo(id);
 
   if (!deleted) {
     return res.status(404).json({

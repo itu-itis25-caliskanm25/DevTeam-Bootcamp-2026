@@ -1,29 +1,24 @@
-export const users = [];
+import {
+    createUser,
+    selectUsers,
+    selectUserById,
+    selectUserByEmail,
+} from "./users.db.js";
 
-export const addUser = (username, email, password) => {
-    const user = {
-        id: crypto.randomUUID(),
-        username,
-        email,
-        password,
-        createdAt: new Date(),
-    };
-
-    users.push(user);
-
-    return user;
+export const addUser = async (username, email, password) => {
+    return await createUser(username, email, password);
 };
 
-export const getUsers = () => {
-    return users;
+export const getUsers = async () => {
+    return await selectUsers();
 };
 
-export const getUserById = (id) => {
-    return users.find((user) => user.id === id);
+export const getUserById = async (id) => {
+    return await selectUserById(id);
 };
 
-export const getUserByEmail = (email) => {
-    return users.find((user) => user.email === email);
+export const getUserByEmail = async (email) => {
+    return await selectUserByEmail(email);
 };
 
 export const publicUser = ({ id, username, email, createdAt }) => ({
@@ -32,3 +27,4 @@ export const publicUser = ({ id, username, email, createdAt }) => ({
     email,
     createdAt,
 });
+
