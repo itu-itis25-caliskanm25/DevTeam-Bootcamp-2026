@@ -169,17 +169,23 @@ export const getTodoTagsController = async (req, res) => {
 export const removeTagFromTodoController = async (req, res) => {
   const { id, tagId } = req.params;
 
-  if (!Number.isInteger(Number(tagId))) {
+  const result = await removeTagFromTodo(id, tagId);
+
+  if (result.error === "todo_not_found") {
+    return res.status(404).json({
+      error: "Todo not found",
+    });
+  }
+
+  if (result.error === "tag_not_found") {
     return res.status(404).json({
       error: "Tag not found",
     });
   }
 
-  const deleted = await removeTagFromTodo(id, Number(tagId));
-
-  if (!deleted) {
+  if (result.error === "relation_not_found") {
     return res.status(404).json({
-      error: "Todo or tag relation not found",
+      error: "Tag is not attached to todo",
     });
   }
 
