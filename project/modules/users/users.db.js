@@ -41,3 +41,27 @@ export const selectUserByEmail = async (email) => {
         select: publicUserSelect,
     });
 };
+
+export const upsertProfile = async (userId, bio) => {
+    return await prisma.profile.upsert({
+        where: { userId },
+        update: { bio },
+        create: { userId, bio },
+        select: {
+            id: true,
+            bio: true,
+            userId: true,
+        },
+    });
+};
+
+export const selectProfileByUserId = async (userId) => {
+    return await prisma.profile.findUnique({
+        where: { userId },
+        select: {
+            id: true,
+            bio: true,
+            userId: true,
+        },
+    });
+};

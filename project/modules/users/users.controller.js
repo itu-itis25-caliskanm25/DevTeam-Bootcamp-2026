@@ -4,6 +4,8 @@ import {
     getUserById,
     getUserByEmail,
     publicUser,
+    saveProfile,
+    getProfileByUserId,
 } from "./users.service.js";
 
 import { getTodosByUserId } from "../todos/todos.service.js";
@@ -46,3 +48,41 @@ export const getUserTodosController = async (req, res) => {
     res.json(todos);
 };
 
+export const upsertProfileController = async (req, res) => {
+    const { id } = req.params;
+    const { bio } = req.body;
+
+    const user = await getUserById(id);
+
+    if (!user) {
+        return res.status(404).json({
+            error: "User not found",
+        });
+    }
+
+    const profile = await saveProfile(id, bio);
+
+    res.status(200).json(profile);
+};
+
+export const getProfileController = async (req, res) => {
+    const { id } = req.params;
+
+    const user = await getUserById(id);
+
+    if (!user) {
+        return res.status(404).json({
+            error: "User not found",
+        });
+    }
+
+    const profile = await getProfileByUserId(id);
+
+    if (!profile) {
+        return res.status(404).json({
+            error: "Profile not found",
+        });
+    }
+
+    res.status(200).json(profile);
+};

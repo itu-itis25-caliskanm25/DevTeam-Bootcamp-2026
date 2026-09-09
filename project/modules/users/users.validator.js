@@ -22,3 +22,15 @@ export const validateAddUser = (req, res, next) => {
 
     next();
 };
+
+export const validateProfile = (req, res, next) => {
+    const { bio } = req.body;
+
+    if (typeof bio !== "string" || bio.trim() === "") {
+        return res.status(400).json({
+            error: "Bio is required and must be a non-empty string",
+        });
+    }
+
+    next();
+};
