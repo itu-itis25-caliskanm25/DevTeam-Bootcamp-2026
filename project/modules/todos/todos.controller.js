@@ -110,30 +110,30 @@ export const addTagToTodoController = async (req, res) => {
   const { id } = req.params;
   const { tagId } = req.body;
 
-  if (
-    tagId === undefined ||
-    tagId === null ||
-    !Number.isInteger(Number(tagId))
-  ) {
+  // tagId hiç gönderilmemişse 400
+  if (tagId === undefined) {
     return res.status(400).json({
-      error: "tagId is required and must be an integer",
+      error: "tagId is required",
     });
   }
 
-  const result = await addTagToTodo(id, Number(tagId));
+  const result = await addTagToTodo(id, tagId);
 
+  // Todo yok
   if (result.error === "todo_not_found") {
     return res.status(404).json({
       error: "Todo not found",
     });
   }
 
+  // Tag yok
   if (result.error === "tag_not_found") {
     return res.status(404).json({
       error: "Tag not found",
     });
   }
 
+  // Aynı bağlantı zaten var
   if (result.error === "already_exists") {
     return res.status(409).json({
       error: "Tag already attached to todo",
@@ -141,10 +141,11 @@ export const addTagToTodoController = async (req, res) => {
   }
 
   res.status(201).json({
-    ...result,
+    todoId: result.todoId,
     tagId: String(result.tagId),
   });
 };
+
 
 export const getTodoTagsController = async (req, res) => {
   const { id } = req.params;
